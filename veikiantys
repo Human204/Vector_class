@@ -1,0 +1,14 @@
+ operator []
+ .at()
+ swap
+ push_back
+ front()
+ back()
+ operator =
+ clear()
+ size()
+ data()
+ operator *
+ empty()
+ max_size()
+ 
