@@ -1,7 +1,7 @@
  operator []
  .at()
  swap
- push_back
+ push_back()
  front()
  back()
  operator =
@@ -11,4 +11,17 @@
  operator *
  empty()
  max_size()
- 
+ resize()
+ empty()
+ pop_back()
+ front()
+ back()
+reserve()
+shrink_to_fit()
+
+iterator:
+begin()
+end()
+
+ TODO::
+ visi iterators
