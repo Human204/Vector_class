@@ -27,7 +27,7 @@ class vector{
     vector(int s, T val) : sz(s), elem(new T[s]),cap(s) { std::fill_n(elem, s, val); }
     vector(const vector& b);
     vector(vector<T>&&other);
-    vector(std::initializer_list<T> list):sz(list.size()),elem(new T[list.size()]){int i=0;for(auto &list_elem :list){elem[i]=list_elem;i++;};}
+    vector(std::initializer_list<T> list):sz(list.size()),elem(new T[list.size()]),cap(list.size()){int i=0;for(auto &list_elem :list){elem[i]=list_elem;i++;};}
     vector(T* first,T* last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
     //-----------------------------------------------------------------------
     void reserve(int &n);
@@ -40,9 +40,13 @@ class vector{
         if (i < 0 || sz <= i) throw std::out_of_range {"Vector::operator[]"};
         return elem[i];
     }
-    inline T at(int i){
+    inline T& at(int &i){
         if (i < 0 || sz <= i) throw std::out_of_range {"Vector::operator[]"};
         return elem[i];
+    }
+    inline T& at(int &&i){
+        int l=i;
+        return at(l);
     }
     void swap(vector<T> &b);
     void resize(int &i);
@@ -62,14 +66,13 @@ class vector{
     inline int capacity() { return cap; }
     inline int size() {return sz;}
     inline bool empty(){if(sz==0)return true;else return false;}
-    inline const T* cbegin(){return elem;}
-    inline const T* cend(){return elem+sz;}
     ~vector(){if(sz!=0)delete[]elem;cap=0;sz=0;}
     //reverse iterator-----------------------------------------------------
     class reverse_iterator
 {
 public:
-    reverse_iterator(int* ptr) : m_ptr(ptr) {}
+    reverse_iterator(T* ptr) : m_ptr(ptr) {}
+    reverse_iterator():m_ptr(nullptr){}
     
     operator T*() const{
             return m_ptr;
@@ -90,7 +93,7 @@ public:
         m_ptr=other;
     }
     
-    int& operator*() const 
+    T& operator*() const 
     {
         return *m_ptr;
     }
@@ -104,11 +107,59 @@ public:
     {
         return !(*this == other);
     }
-    
+    T* operator->(){
+        return m_ptr;
+    }
     
     T* m_ptr;
     };
     //-------------------------------------------------------------------------
+    //const_reverse_iterator----------------------------------------------------
+    class const_reverse_iterator{
+        public:
+    const_reverse_iterator(T* ptr) : m_ptr(ptr) {}
+    const_reverse_iterator():m_ptr(nullptr){}
+    
+    operator T*() const{
+            return m_ptr;
+        }
+    reverse_iterator& operator++()
+    {
+        --m_ptr;
+        return *this;
+    }
+    
+    reverse_iterator operator++(int)
+    {
+        reverse_iterator temp(*this);
+        --m_ptr;
+        return temp;
+    }
+    void operator=(T* other){
+        m_ptr=other;
+    }
+    
+    const T& operator*() const 
+    {
+        return *m_ptr;
+    }
+    
+    bool operator==(const reverse_iterator& other) const
+    {
+        return m_ptr == other.m_ptr;
+    }
+    
+    bool operator!=(const reverse_iterator& other) const
+    {
+        return !(*this == other);
+    }
+    const T* operator->(){
+        return m_ptr;
+    }
+    
+    
+    T* m_ptr;
+    };
     //iterator ----------------------------------------------------------------
     class iterator{
         private:
@@ -117,50 +168,40 @@ public:
         // T* m_ptr;
         iterator(T* ptr) : m_ptr(ptr) {}
         iterator() :m_ptr(nullptr){}
-        // template<typename U>
         operator T*() const{
             return m_ptr;
         }
-        iterator& operator++()
-    {
+        iterator& operator++(){
         ++m_ptr;
         return *this;
     }
-    
-    iterator operator++(int)
-    {
+    iterator operator++(int){
         iterator temp(*this);
         ++m_ptr;
         return temp;
-        // return *this;
+        
     }
-    iterator operator--(int)
-    {
+    iterator operator--(int){
         iterator temp(*this);
         --m_ptr;
         return temp;
     }
-    iterator& operator--()
-    {
+    iterator& operator--(){
         --m_ptr;
         return *this;
     }
     void operator=(T* other){
         m_ptr=other;
     }
-    
-    T& operator*() const 
-    {
+    T& operator*() const {
         return *m_ptr;
     }
     
-    bool operator==(const iterator& other) const 
-    {
+    bool operator==(const iterator& other) const {
         return m_ptr == other.m_ptr;
     }
     
-    bool operator!=(const iterator& other) const 
-    {
+    bool operator!=(const iterator& other) const {
         return !(*this == other);
     }
     
@@ -176,23 +217,74 @@ public:
     T* operator->(){
         return m_ptr;
     }
-    T* getPtr(){return m_ptr;}
-    // struct ArrowProxy {
-    //     T* operator->() const {
-    //         return *this.m_ptr;
-    //     }
-
-    //     T* m_ptr;
-    // };
-
-    // ArrowProxy operator->() {
-    //     return { *this.m_ptr };
-    // }
 };
+    //const_iterator-----------------------------------------------------------
+    class const_iterator{
+        private:
+        T* m_ptr;
+        public:
+        // T* m_ptr;
+        const_iterator(T* ptr) : m_ptr(ptr) {}
+        const_iterator() :m_ptr(nullptr){}
+        operator T*() const{
+            return m_ptr;
+        }
+        iterator& operator++(){
+        ++m_ptr;
+        return *this;
+    }
+    iterator operator++(int){
+        iterator temp(*this);
+        ++m_ptr;
+        return temp;
+        
+    }
+    iterator operator--(int){
+        iterator temp(*this);
+        --m_ptr;
+        return temp;
+    }
+    iterator& operator--(){
+        --m_ptr;
+        return *this;
+    }
+    void operator=(T* other){
+        m_ptr=other;
+    }
+    const T& operator*() const {
+        return *m_ptr;
+    }
+    
+    bool operator==(const iterator& other) const {
+        return m_ptr == other.m_ptr;
+    }
+    
+    bool operator!=(const iterator& other) const {
+        return !(*this == other);
+    }
+    
+    bool operator<(const iterator& other){
+        return *this.m_ptr<other.m_ptr;
+    }
+    bool operator<(T* other){
+        return m_ptr<other;
+    }
+    bool operator>(T* other){
+        return m_ptr>other;
+    }
+    const T* operator->(){
+        return m_ptr;
+    }
+    };
+//---------------------------------------------------------------------
 vector<T>::iterator begin(){return iterator(elem);}
+vector<T>::const_iterator cbegin(){return const_iterator(elem);}
 vector<T>::iterator end(){return iterator(elem+sz);}
-vector<T>::iterator rbegin(){return reverse_iterator(elem+sz-1);}
-vector<T>::iterator rend() {return reverse_iterator(elem-1);}
+vector<T>::const_iterator cend(){return const_iterator(elem+sz);}
+vector<T>::reverse_iterator rbegin(){return reverse_iterator(elem+sz-1);}
+vector<T>::const_reverse_iterator crbegin(){return const_reverse_iterator(elem+sz-1);}
+vector<T>::reverse_iterator rend() {return reverse_iterator(elem-1);}
+vector<T>::const_reverse_iterator crend() {return const_reverse_iterator(elem-1);}
 vector<T>::iterator erase(T* beginning,T* ending);
 vector<T>::iterator erase(T* element);
 vector<T>::iterator insert(vector<T>::iterator pos,const T& value);
@@ -331,13 +423,15 @@ template<class T>void vector<T>::reserve(int &n){
 }
 
 template<class T>void vector<T>::shrink_to_fit(){
-    cap=sz;
-    T* temp=new T[sz];
-    for(int i=0;i<sz;i++){
-        temp[i]=elem[i];
+    if(cap!=sz){
+        cap=sz;
+        T* temp=new T[sz];
+        for(int i=0;i<sz;i++){
+            temp[i]=elem[i];
+        }
+        delete[]elem;
+        elem=temp;
     }
-    delete[]elem;
-    elem=temp;
 }
 
 template<class T>typename vector<T>::iterator vector<T>::erase(T* beginning,T* ending){
