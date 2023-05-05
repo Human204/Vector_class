@@ -23,13 +23,13 @@ Element access:
 
 Iterators:
 * begin()
-* cbegin() (-)
+* cbegin()
 * end()
-* cend() (-)
+* cend()
 * rbegin()
-* crbegin() (-)
+* crbegin()
 * rend()
-* crend() (-)
+* crend()
 
 Capacity:
 * empty()
