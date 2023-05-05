@@ -1,22 +1,34 @@
+#include <iostream>
+#include <iterator>
+#include <numeric>
+#include <string_view>
 #include "vector.h"
-int main(){
-vector<std::string> a;
-int x=1,y=2;
-a.push_back("ab");
-a.push_back("bc");
-a.push_back("cd");
-for(auto &i : a){
-  cout<<i<<endl;
+void print_container(vector<char>& c)
+{
+  cout<<"{";
+    for (auto x : c)
+        std::cout << x << ' ';
+    std::cout << "}\n";
 }
-vector<double> b;
-// cout<<b.capacity()<<endl;
-
-// cout<<b.max_size()<<endl;
-// b.reserve(5);
-// cout<<*a<<endl;
-// cout<<a.data()<<endl;
-cout<<a.cbegin()<<" "<<a.end()<<endl;
-vector<std::string>::iterator it(a.begin());
-
-  return 0;
+ 
+int main()
+{
+    std::vector<int> nums {1, 2, 4, 8, 16};
+    std::vector<std::string> fruits {"orange", "apple", "raspberry"};
+    std::vector<char> empty;
+ 
+    // Print vector.
+    std::for_each(nums.rbegin(), nums.rend(), [](const int n) { std::cout << n << ' '; });
+    std::cout << '\n';
+ 
+    // Sums all integers in the vector nums (if any), printing only the result.
+    std::cout << "Sum of nums: "
+              << std::accumulate(nums.rbegin(), nums.rend(), 0) << '\n';
+ 
+    // Prints the first fruit in the vector fruits, checking if there is any.
+    if (!fruits.empty())
+        std::cout << "First fruit: " << *fruits.rbegin() << '\n';
+ 
+    if (empty.rbegin() == empty.rend())
+        std::cout << "vector 'empty' is indeed empty.\n";
 }
