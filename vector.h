@@ -20,18 +20,15 @@ class vector{
     int sz;//size
     int cap;//capacity
     T *elem;
-    // T* it; //iteratorius
-    // vector<T>::iterator it=elem;
-    // ReverseIterator rit;
     
     public:
-    // typedef T* iterator;
-    // typedef const T* const_iterator;
     //constructors-----------------------------------------------------------
     vector(): sz(0),cap(0),elem(nullptr){};
     vector(int s, T val) : sz(s), elem(new T[s]),cap(s) { std::fill_n(elem, s, val); }
     vector(const vector& b);
+    vector(vector<T>&&other);
     vector(std::initializer_list<T> list):sz(list.size()),elem(new T[list.size()]){int i=0;for(auto &list_elem :list){elem[i]=list_elem;i++;};}
+    vector(T* first,T* last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
     //-----------------------------------------------------------------------
     void reserve(int &n);
     void reserve(int &&n){int a=n;reserve(a);}
@@ -58,19 +55,13 @@ class vector{
     T* data(){if(sz==0) return nullptr;else return elem;};
     vector<T>& operator=(vector<T> &b);
     vector<T>& operator=(const vector<T> &other);
-    // vector<T>& const operator=(const vector<T> &b);
-    // inline void clear(){delete []elem;sz=0;cap=0;}
+    vector<T>& operator=(vector<T> &&other);
     void clear(){if(sz!=0){delete[]elem,cap=0;sz=0;}}
     inline int capacity() const { return cap; }
     inline int size() const{return sz;}
     inline int capacity() { return cap; }
     inline int size() {return sz;}
     inline bool empty(){if(sz==0)return true;else return false;}
-    // inline T* begin(){return elem;}
-    // inline const T* begin(){return elem;}
-    // inline T* end(){return elem+sz;}
-    
-    
     inline const T* cbegin(){return elem;}
     inline const T* cend(){return elem+sz;}
     ~vector(){if(sz!=0)delete[]elem;cap=0;sz=0;}
@@ -212,6 +203,7 @@ vector<T>::iterator insert(vector<T>::iterator pos,int &length,T &&value){T val=
 vector<T>::iterator insert(vector<T>::iterator pos,int &&length,T &&value){T val=value;int len=length;return insert(pos,len,value);}
 vector<T>::iterator insert(vector<T>::iterator pos,std::initializer_list<T> list){T arr[list.size()];std::copy(list.begin(),list.end(),arr);return insert(pos,arr, &arr[sizeof(arr)/sizeof(arr[0])]);}
 
+vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
 
 //----------------------------------------------------------------------------
     //------------------------------------------------------------------------
@@ -219,6 +211,25 @@ vector<T>::iterator insert(vector<T>::iterator pos,std::initializer_list<T> list
     
 };
 
+template<class T>vector<T>::vector(vector<T>&&other){
+    elem=std::move(other.data());
+    sz=other.size();
+    cap=other.cap;
+    other.clear();
+    other.shrink_to_fit();
+}
+
+template<class T>vector<T>& vector<T>::operator=(vector<T> &&other){
+elem=std::move(other.data());
+// elem=other.data();
+sz=other.size();
+cap=other.cap;
+other.clear();
+other.shrink_to_fit();
+return *this;
+
+
+}
 
 template<class T> vector<T>& vector<T>::operator=(const vector<T> &other){
     if (this == &other) {
