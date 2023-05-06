@@ -20,22 +20,21 @@ class vector{
     int sz;//size
     int cap;//capacity
     T *elem;
-    
     public:
-    //constructors-----------------------------------------------------------
+    //member functions-----------------------------------------------------------
+    //constructors
     vector(): sz(0),cap(0),elem(nullptr){};
     vector(int s, T val) : sz(s), elem(new T[s]),cap(s) { std::fill_n(elem, s, val); }
     vector(const vector& b);
     vector(vector<T>&&other);
     vector(std::initializer_list<T> list):sz(list.size()),elem(new T[list.size()]),cap(list.size()){int i=0;for(auto &list_elem :list){elem[i]=list_elem;i++;};}
     vector(T* first,T* last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
+    vector<T>& operator=(vector<T> &b);
+    vector<T>& operator=(const vector<T> &other);
+    vector<T>& operator=(vector<T> &&other);
+    ~vector(){if(sz!=0)delete[]elem;cap=0;sz=0;}
     //-----------------------------------------------------------------------
-    void reserve(int &n);
-    void reserve(int &&n){int a=n;reserve(a);}
-    void shrink_to_fit();
-    T max_size() const{return std::numeric_limits<T>::max();}
-    inline bool empty() const{if(sz==0)return true;else return false;}
-    T* operator*(){return elem;}
+    //element access
     T& operator[](int i){
         if (i < 0 || sz <= i) throw std::out_of_range {"Vector::operator[]"};
         return elem[i];
@@ -48,25 +47,11 @@ class vector{
         int l=i;
         return at(l);
     }
-    void swap(vector<T> &b);
-    void resize(int &i);
-    void resize(int &&i){int l=i;resize(l);}
-    void push_back(T &a);
-    void push_back(T &&a){T temp=a;push_back(temp);}
-    inline void pop_back(){elem[sz-1]=T{};sz--;}
     T& front(){return elem[0];}
     T& back(){return elem[sz-1];}
     T* data(){if(sz==0) return nullptr;else return elem;};
-    vector<T>& operator=(vector<T> &b);
-    vector<T>& operator=(const vector<T> &other);
-    vector<T>& operator=(vector<T> &&other);
-    void clear(){if(sz!=0){delete[]elem,cap=0;sz=0;}}
-    inline int capacity() const { return cap; }
-    inline int size() const{return sz;}
-    inline int capacity() { return cap; }
-    inline int size() {return sz;}
-    inline bool empty(){if(sz==0)return true;else return false;}
-    ~vector(){if(sz!=0)delete[]elem;cap=0;sz=0;}
+    //------------------------------------------------------------------------ 
+    T* operator*(){return elem;} 
     //reverse iterator-----------------------------------------------------
     class reverse_iterator
 {
@@ -276,7 +261,8 @@ public:
         return m_ptr;
     }
     };
-//---------------------------------------------------------------------
+
+//iterators
 vector<T>::iterator begin(){return iterator(elem);}
 vector<T>::const_iterator cbegin(){return const_iterator(elem);}
 vector<T>::iterator end(){return iterator(elem+sz);}
@@ -285,8 +271,27 @@ vector<T>::reverse_iterator rbegin(){return reverse_iterator(elem+sz-1);}
 vector<T>::const_reverse_iterator crbegin(){return const_reverse_iterator(elem+sz-1);}
 vector<T>::reverse_iterator rend() {return reverse_iterator(elem-1);}
 vector<T>::const_reverse_iterator crend() {return const_reverse_iterator(elem-1);}
-vector<T>::iterator erase(T* beginning,T* ending);
-vector<T>::iterator erase(T* element);
+//---------------------------------------------------------------------
+//capacity
+inline bool empty(){if(sz==0)return true;else return false;}
+inline bool empty() const{if(sz==0)return true;else return false;}
+inline int size() {return sz;}
+inline int size() const{return sz;}
+T max_size() const{return std::numeric_limits<T>::max();}
+void reserve(int &n);
+void reserve(int &&n){int a=n;reserve(a);}
+inline int capacity() { return cap; }
+inline int capacity() const { return cap; }
+void shrink_to_fit();
+void push_back(T &a);
+void push_back(T &&a){T temp=a;push_back(temp);}
+inline void pop_back(){elem[sz-1]=T{};sz--;}
+void resize(int &i);
+void resize(int &&i){int l=i;resize(l);}
+void swap(vector<T> &b);
+//---------------------------------------------------------------------
+//modifiers
+void clear(){if(sz!=0){delete[]elem,cap=0;sz=0;}}
 vector<T>::iterator insert(vector<T>::iterator pos,const T& value);
 vector<T>::iterator insert(vector<T>::iterator pos,const T&& value){T m=value; return insert(pos,m);}
 vector<T>::iterator insert( vector<T>::iterator pos, T* first, T* last );
@@ -294,6 +299,9 @@ vector<T>::iterator insert(vector<T>::iterator pos,int &length,T &value);
 vector<T>::iterator insert(vector<T>::iterator pos,int &length,T &&value){T val=value;return insert(pos,length,value);}
 vector<T>::iterator insert(vector<T>::iterator pos,int &&length,T &&value){T val=value;int len=length;return insert(pos,len,value);}
 vector<T>::iterator insert(vector<T>::iterator pos,std::initializer_list<T> list){T arr[list.size()];std::copy(list.begin(),list.end(),arr);return insert(pos,arr, &arr[sizeof(arr)/sizeof(arr[0])]);}
+vector<T>::iterator erase(T* beginning,T* ending);
+vector<T>::iterator erase(T* element);
+//---------------------------------------------------------------------
 
 vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
 
@@ -302,7 +310,7 @@ vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(la
 
     
 };
-
+//member functions-----------------------------------------------------------
 template<class T>vector<T>::vector(vector<T>&&other){
     elem=std::move(other.data());
     sz=other.size();
@@ -337,25 +345,6 @@ template<class T> vector<T>& vector<T>::operator=(const vector<T> &other){
     cap=other.cap;
     return *this;
 }
-template<class T> void vector<T>::swap(vector<T> &b){
-    int tempsz=b.sz;
-    int tempcap=b.cap;
-    T *tempelem=b.elem;
-    b.sz=sz;
-    b.elem=elem;
-    b.cap=cap;
-    sz=tempsz;
-    elem=tempelem;
-    cap=tempcap;
-}
-
-template<class T> vector<T>::vector(const vector<T>& b) // copy konstruktorius
-: sz{b.sz},cap{b.cap}, // inicializuojame sz
-elem{new T[b.sz]} // išskiriame atmintį elem
-{
-for (int i=0; i!=sz; ++i) // nukopijuojame elementus
-elem[i] = b.elem[i];
-}
 
 template<class T> vector<T>& vector<T>::operator=(vector<T> &b){
     if (&b == this) return *this;
@@ -368,50 +357,20 @@ template<class T> vector<T>& vector<T>::operator=(vector<T> &b){
     cap=b.cap;
     return *this;
 }
-
-template <class T> void vector<T>::push_back(T &a){
-    if(sz==cap||cap==0){
-        // cout<<"B\n";
-        int newcap;
-        // int newcap=cap == 0 ? 1 : cap * 2;
-        if(cap==0)newcap=1;
-        else newcap=cap*2;
-        // cout<<newcap<<endl;
-        T* temp=new T[newcap];
-        for(int i=0;i<sz;i++){
-            temp[i]=elem[i];
-        }
-        delete[]elem;
-        elem=temp;
-        cap=newcap;
-    }
-    
-    elem[sz]=a;
-    sz++;
-    // cout<<a<<" "<<sz<<" "<<cap<<" push_back || "<<typeid(a).name()<<"\n"; 
+template<class T> vector<T>::vector(const vector<T>& b) // copy konstruktorius
+: sz{b.sz},cap{b.cap}, // inicializuojame sz
+elem{new T[b.sz]} // išskiriame atmintį elem
+{
+for (int i=0; i!=sz; ++i) // nukopijuojame elementus
+elem[i] = b.elem[i];
 }
 
-template<class T> void vector<T>::resize(int &i){
-    if(i<=sz){
-        sz=i;
-        return;
-    }
-    if(i>cap){
-        cap=i;
-        T* temp=new T[i];
-        for (int j=0;j<sz;j++){
-            temp[j]=elem[j];
-        }
-        std::fill(temp+sz,temp+cap,T{});
-        delete[] elem;
-        elem=temp;
-    }
-    else{
-        std::fill(elem+sz,elem+i,T{});
-    }
-    sz=i;
-}
-
+//----------------------------------------------------------------------------
+//element access
+//---------------------------------------------------------------------
+//Iterators
+//---------------------------------------------------------------------
+//capacity
 template<class T>void vector<T>::reserve(int &n){
     if(n>cap){
         T* temp=new T[n];
@@ -421,7 +380,6 @@ template<class T>void vector<T>::reserve(int &n){
         cap=n;
     }
 }
-
 template<class T>void vector<T>::shrink_to_fit(){
     if(cap!=sz){
         cap=sz;
@@ -433,51 +391,8 @@ template<class T>void vector<T>::shrink_to_fit(){
         elem=temp;
     }
 }
-
-template<class T>typename vector<T>::iterator vector<T>::erase(T* beginning,T* ending){
-    int size_diff,pos1,pos2;
-    // pos1=((beginning-begin())/sizeof(T));
-    pos1=beginning-begin();
-    // pos2=((ending-begin())/sizeof(T));
-    pos2=ending-begin();
-    size_diff=((ending-beginning));
-    // cout<<pos1<<" "<<pos2<<" "<<size_diff<<'\n';
-    // T* temp=new T[sz-size_diff];
-    T* temp=new T[cap];
-    int j=0;
-    for(int i=0;i<pos1;i++){
-        temp[i]=elem[i];
-        // cout<<temp[i]<<" ";
-    }
-    for(int i=pos2;i<sz;i++){
-        temp[i-size_diff]=elem[i];
-        // cout<<temp[i]<<" ";
-    }
-    cout<<endl;
-    delete[] elem;
-    elem=temp;
-    sz-=size_diff;
-    vector<T>::iterator ret = elem+sz-pos2-size_diff+1;
-    return ret;
-}
-template<class T>typename vector<T>::iterator vector<T>::erase(T* element){
-    T* temp=new T[cap];
-    int pos1=element-begin();
-    for (int i=0;i<pos1;i++){
-        temp[i]=elem[i];
-        
-    }
-    for(int i=pos1+1;i<sz;i++){
-        temp[i-1]=elem[i];
-    }
-    
-    delete[] elem;
-    elem=temp;
-    sz--;
-    vector<T>::iterator ret = elem+pos1;
-    return ret;
-}
-
+//---------------------------------------------------------------------
+//Modifiers
 template<class T> typename vector<T>::iterator vector<T>::insert(vector<T>::iterator pos,const T& value){
     int pos_int=pos-begin();
     sz++;
@@ -542,30 +457,106 @@ template <class T>typename vector<T>::iterator vector<T>::insert(vector<T>::iter
     return pos;
 }
 
-//non-member functions
-template <class T> std::size_t erase(vector<T> &from,T &value){
-    size_t erased=0;
-    for(int i=0;i<from.size();i++){
-        if (from[i]==value){
-            from.erase(from.begin()+i);
-            erased++;
+template <class T> void vector<T>::push_back(T &a){
+    if(sz==cap||cap==0){
+        // cout<<"B\n";
+        int newcap;
+        // int newcap=cap == 0 ? 1 : cap * 2;
+        if(cap==0)newcap=1;
+        else newcap=cap*2;
+        // cout<<newcap<<endl;
+        T* temp=new T[newcap];
+        for(int i=0;i<sz;i++){
+            temp[i]=elem[i];
         }
+        delete[]elem;
+        elem=temp;
+        cap=newcap;
     }
-    return erased;
+    
+    elem[sz]=a;
+    sz++;
+    // cout<<a<<" "<<sz<<" "<<cap<<" push_back || "<<typeid(a).name()<<"\n"; 
 }
 
-template <class T>std::size_t erase(vector<T> &from,T &&value){T val=value; return erase(from,val);}
-template<class T,class Pred> std::size_t erase_if(vector<T> &from,Pred pred){
-    size_t erased=0;
-    for(int i=0;i<from.size();i++){
-        if(pred(from[i])==true){
-            from.erase(from.begin()+i);
-            erased++;
-        }
+template<class T> void vector<T>::resize(int &i){
+    if(i<=sz){
+        sz=i;
+        return;
     }
-    return erased;
+    if(i>cap){
+        cap=i;
+        T* temp=new T[i];
+        for (int j=0;j<sz;j++){
+            temp[j]=elem[j];
+        }
+        std::fill(temp+sz,temp+cap,T{});
+        delete[] elem;
+        elem=temp;
+    }
+    else{
+        std::fill(elem+sz,elem+i,T{});
+    }
+    sz=i;
 }
 
+template<class T> void vector<T>::swap(vector<T> &b){
+    int tempsz=b.sz;
+    int tempcap=b.cap;
+    T *tempelem=b.elem;
+    b.sz=sz;
+    b.elem=elem;
+    b.cap=cap;
+    sz=tempsz;
+    elem=tempelem;
+    cap=tempcap;
+}
+template<class T>typename vector<T>::iterator vector<T>::erase(T* beginning,T* ending){
+    int size_diff,pos1,pos2;
+    // pos1=((beginning-begin())/sizeof(T));
+    pos1=beginning-begin();
+    // pos2=((ending-begin())/sizeof(T));
+    pos2=ending-begin();
+    size_diff=((ending-beginning));
+    // cout<<pos1<<" "<<pos2<<" "<<size_diff<<'\n';
+    // T* temp=new T[sz-size_diff];
+    T* temp=new T[cap];
+    int j=0;
+    for(int i=0;i<pos1;i++){
+        temp[i]=elem[i];
+        // cout<<temp[i]<<" ";
+    }
+    for(int i=pos2;i<sz;i++){
+        temp[i-size_diff]=elem[i];
+        // cout<<temp[i]<<" ";
+    }
+    cout<<endl;
+    delete[] elem;
+    elem=temp;
+    sz-=size_diff;
+    vector<T>::iterator ret = elem+sz-pos2-size_diff+1;
+    return ret;
+}
+template<class T>typename vector<T>::iterator vector<T>::erase(T* element){
+    T* temp=new T[cap];
+    int pos1=element-begin();
+    for (int i=0;i<pos1;i++){
+        temp[i]=elem[i];
+        
+    }
+    for(int i=pos1+1;i<sz;i++){
+        temp[i-1]=elem[i];
+    }
+    
+    delete[] elem;
+    elem=temp;
+    sz--;
+    vector<T>::iterator ret = elem+pos1;
+    return ret;
+}
+
+//---------------------------------------------------------------------
+//Non-member functions
 //comparison operators
 template<class T> bool operator==(vector<T> &first,vector<T> &second){
     if(first.size()!=second.size())return false;
@@ -622,5 +613,28 @@ template<class T>std::strong_ordering operator<=>(vector<T>&first,vector<T>&seco
     else if(first<second)return std::strong_ordering::less;
     else return std::strong_ordering::greater;
 }
+template <class T> std::size_t erase(vector<T> &from,T &value){
+    size_t erased=0;
+    for(int i=0;i<from.size();i++){
+        if (from[i]==value){
+            from.erase(from.begin()+i);
+            erased++;
+        }
+    }
+    return erased;
+}
 
+template <class T>std::size_t erase(vector<T> &from,T &&value){T val=value; return erase(from,val);}
+template<class T,class Pred> std::size_t erase_if(vector<T> &from,Pred pred){
+    size_t erased=0;
+    for(int i=0;i<from.size();i++){
+        if(pred(from[i])==true){
+            from.erase(from.begin()+i);
+            erased++;
+        }
+    }
+    return erased;
+}
+
+//---------------------------------------------------------------------
 #endif
