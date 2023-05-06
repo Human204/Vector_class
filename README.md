@@ -60,6 +60,6 @@ Non-member functions:
 * operator>
 * operator>=
 * operator<=>
-* std::swap() (?)
+* std::swap()
 * erase()
 * erase_if()

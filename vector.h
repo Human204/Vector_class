@@ -156,6 +156,7 @@ public:
         iterator(T* ptr) : m_ptr(ptr) {}
         iterator() :m_ptr(nullptr){}
         iterator(std::__cxx11::basic_string<T>::iterator it):m_ptr(&(*it)){}
+        template <class U> iterator(__gnu_cxx::__normal_iterator<T,U> it):m_ptr(&(*it)){}
         operator T*() const{
             return m_ptr;
         }
@@ -305,10 +306,16 @@ vector<T>::iterator insert(vector<T>::iterator pos,std::initializer_list<T> list
 vector<T>::iterator erase(T* beginning,T* ending);
 vector<T>::iterator erase(T* element);
 // template<class Args> vector<T>::iterator emplace(vector<T>::iterator pos,Args&& args);
+// template<class... Args> vector<T>::iterator emplace_back(Args... args);
 //---------------------------------------------------------------------
 
 vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
 void assign(vector<T>::iterator first,vector<T>::iterator last);
+template<class U> friend void swap(vector<U>&a,vector<U>&b);
+    // std::swap(a.elem,b.elem);
+    // std::swap(a.sz,b.sz);
+    // std::swap(a.cap,b.cap);
+// }
 //---------------------------------------------------------------------------- 
 };
 //member functions-----------------------------------------------------------
@@ -440,9 +447,9 @@ template<class T>void vector<T>::reserve(int &n){
     }
 }
 template<class T>void vector<T>::shrink_to_fit(){
-    if(cap!=sz){
+    if(cap!=sz&&sz!=0){
         cap=sz;
-        T* temp=new T[sz];
+        T* temp=new T[cap];
         for(int i=0;i<sz;i++){
             temp[i]=elem[i];
         }
@@ -614,35 +621,23 @@ template<class T>typename vector<T>::iterator vector<T>::erase(T* element){
     return ret;
 }
 // template<class T>template<class Args>typename vector<T>::iterator vector<T>::emplace(vector<T>::iterator pos,Args&& args){
-//     int position=pos-begin();
-//     // if((sz+1)>cap){
-//     //     sz+=1;
-//     //     cap*=2;
-//     //     T* temp=new T[cap];
-//     //     // for(int i=0;i<position;i++){
-//     //     //     temp[i]=elem[i];
-//     //     // }
-//     //     // temp[position]=T{args};
-//     //     // for(int i=position+1;i<sz;i++){
-//     //     //     temp[i]=elem[i];
-//     //     // }
-//     //     std::move(elem,elem+position-1,temp);
-//     //     temp[position]=T{args};
-//     //     std::move(elem+position,elem+(sz-1),temp+position+1);
-//     //     pos=temp+position;
-//     // }
-//     // else{
-//         sz++;
-//         std::move(elem+position,elem+sz-1,elem+position+1);
-//         elem[position]=T{args};
-//         for(int i=0;i<sz;i++){
-//             cout<<*(elem+i)<<" ";
+//     ptrdiff_t i=pos-begin();
+//     if(sz==cap)reserve(cap*2);
+//     sz++;
+//     for (ptrdiff_t j = sz - 1; j > i; --j) {
+//             elem[j] = std::move(elem[j - 1]);
 //         }
-//         cout<<endl;
-//     // }
-    
-//     return pos;
+//     elem[i]=T{args};    
+//     return elem+i;
 // }
+// template<class T>template<class... Args> typename vector<T>::iterator vector<T>::emplace_back(Args... args){
+//     if(sz==cap)reserve(cap*2);
+//     // elem[sz]=T{args};
+//     // elem[sz]=;
+//     new (elem+sz) T(std::forward<Args>(args)...);
+//     sz++;
+//     return end();
+// } 
 //---------------------------------------------------------------------
 //Non-member functions
 //comparison operators
@@ -723,6 +718,10 @@ template<class T,class Pred> std::size_t erase_if(vector<T> &from,Pred pred){
     }
     return erased;
 }
-
+template<class U>void swap(vector<U>&a,vector<U>&b){
+    std::swap(a.elem,b.elem);
+    std::swap(a.sz,b.sz);
+    std::swap(a.cap,b.cap);
+}
 //---------------------------------------------------------------------
 #endif

@@ -18,3 +18,7 @@ capacity:
 	g++ -std=c++20 -O3 vector.h ./Tests/capacity.cpp -o ./Tests/bin/capacity.exe
 run_capacity:
 	./Tests/bin/capacity.exe
+non-member:
+	g++ -std=c++20 -O3 vector.h ./Tests/non-member.cpp -o ./Tests/bin/non-member.exe
+run_non-member:
+	./Tests/bin/non-member.exe
