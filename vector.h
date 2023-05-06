@@ -8,7 +8,6 @@
 #include<compare>
 // #include<memory>
 #include<algorithm>
-// #include"reverse_iterator.h"
 
 using std::cout;
 using std::endl;
@@ -33,6 +32,9 @@ class vector{
     vector<T>& operator=(const vector<T> &other);
     vector<T>& operator=(vector<T> &&other);
     ~vector(){if(sz!=0)delete[]elem;cap=0;sz=0;}
+    //--
+    void assign(int count,const T& value);
+    void assign(std::initializer_list<T> list);
     //-----------------------------------------------------------------------
     //element access
     T& operator[](int i){
@@ -153,6 +155,7 @@ public:
         // T* m_ptr;
         iterator(T* ptr) : m_ptr(ptr) {}
         iterator() :m_ptr(nullptr){}
+        iterator(std::__cxx11::basic_string<T>::iterator it):m_ptr(&(*it)){}
         operator T*() const{
             return m_ptr;
         }
@@ -301,14 +304,12 @@ vector<T>::iterator insert(vector<T>::iterator pos,int &&length,T &&value){T val
 vector<T>::iterator insert(vector<T>::iterator pos,std::initializer_list<T> list){T arr[list.size()];std::copy(list.begin(),list.end(),arr);return insert(pos,arr, &arr[sizeof(arr)/sizeof(arr[0])]);}
 vector<T>::iterator erase(T* beginning,T* ending);
 vector<T>::iterator erase(T* element);
+// template<class Args> vector<T>::iterator emplace(vector<T>::iterator pos,Args&& args);
 //---------------------------------------------------------------------
 
 vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
-
-//----------------------------------------------------------------------------
-    //------------------------------------------------------------------------
-
-    
+void assign(vector<T>::iterator first,vector<T>::iterator last);
+//---------------------------------------------------------------------------- 
 };
 //member functions-----------------------------------------------------------
 template<class T>vector<T>::vector(vector<T>&&other){
@@ -364,7 +365,65 @@ elem{new T[b.sz]} // išskiriame atmintį elem
 for (int i=0; i!=sz; ++i) // nukopijuojame elementus
 elem[i] = b.elem[i];
 }
-
+template<class T> void vector<T>::assign(int count,const T& value){
+    if(count>cap){
+        cap=count;
+        sz=count;
+        T* temp=new T[count];
+        for(int i=0;i<count;i++){
+            temp[i]=value;
+        }
+        delete[]elem;
+        elem=temp;
+    }
+    else{
+        sz=count;
+        for(int i=0;i<count;i++){
+            elem[i]=value;
+        }
+    }
+}
+template<class T> void vector<T>::assign(vector<T>::iterator first,vector<T>::iterator last){
+    if((last-first)>cap){
+        cap=(last-first);
+        sz=cap;
+        T* element=first;
+        T* temp=new T[sz];
+        for(int i=0;i<sz;i++,element++){
+            temp[i]=*element;
+        }
+        delete[]elem;
+        elem=temp;
+    }
+    else{
+        T* element=first;
+        sz=(last-first);
+        for(int i=0;i<sz;i++,element++){
+            elem[i]=*element;
+        }
+    }
+}
+template<class T> void vector<T>::assign(std::initializer_list<T> list){
+    int j=0;
+    if(list.size()>cap){
+        cap=list.size();
+        sz=cap;
+        T* temp=new T[cap];
+        for(auto &i:list){
+            elem[j]=i;
+            j++;
+        }
+        delete[]elem;
+        elem=temp;
+    }
+    else{
+        sz=list.size();
+        for(auto &i:list){
+            elem[j]=i;
+            j++;
+        }
+    }
+}
 //----------------------------------------------------------------------------
 //element access
 //---------------------------------------------------------------------
@@ -554,7 +613,36 @@ template<class T>typename vector<T>::iterator vector<T>::erase(T* element){
     vector<T>::iterator ret = elem+pos1;
     return ret;
 }
-
+// template<class T>template<class Args>typename vector<T>::iterator vector<T>::emplace(vector<T>::iterator pos,Args&& args){
+//     int position=pos-begin();
+//     // if((sz+1)>cap){
+//     //     sz+=1;
+//     //     cap*=2;
+//     //     T* temp=new T[cap];
+//     //     // for(int i=0;i<position;i++){
+//     //     //     temp[i]=elem[i];
+//     //     // }
+//     //     // temp[position]=T{args};
+//     //     // for(int i=position+1;i<sz;i++){
+//     //     //     temp[i]=elem[i];
+//     //     // }
+//     //     std::move(elem,elem+position-1,temp);
+//     //     temp[position]=T{args};
+//     //     std::move(elem+position,elem+(sz-1),temp+position+1);
+//     //     pos=temp+position;
+//     // }
+//     // else{
+//         sz++;
+//         std::move(elem+position,elem+sz-1,elem+position+1);
+//         elem[position]=T{args};
+//         for(int i=0;i<sz;i++){
+//             cout<<*(elem+i)<<" ";
+//         }
+//         cout<<endl;
+//     // }
+    
+//     return pos;
+// }
 //---------------------------------------------------------------------
 //Non-member functions
 //comparison operators

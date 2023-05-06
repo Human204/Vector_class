@@ -10,7 +10,7 @@ Member functions:
 * constructor
 * destructor
 * operator =
-* assign (-)
+* assign
 * assign_range (-)
 * get_allocator (-, no allocator is present)
 
