@@ -29,6 +29,7 @@ class vector{
     vector(vector<T>&&other);
     vector(std::initializer_list<T> list):sz(list.size()),elem(new T[list.size()]),cap(list.size()){int i=0;for(auto &list_elem :list){elem[i]=list_elem;i++;};}
     vector(T* first,T* last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
+    vector(int sz2):sz(sz2),cap(sz2),elem(new T[sz2]){}
     vector<T>& operator=(vector<T> &b);
     vector<T>& operator=(const vector<T> &other);
     vector<T>& operator=(vector<T> &&other);
@@ -307,6 +308,7 @@ void push_back(T &&a){T temp=a;push_back(temp);}
 inline void pop_back(){elem[sz-1]=T{};sz--;}
 void resize(int &i);
 void resize(int &&i){int l=i;resize(l);}
+void resize(T count,T init);
 void swap(vector<T> &b);
 //---------------------------------------------------------------------
 //modifiers
@@ -328,7 +330,7 @@ vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(la
 void assign(vector<T>::iterator first,vector<T>::iterator last);
 template<class U> friend void swap(vector<U>&a,vector<U>&b);
 template <typename Pred>
-    typename vector<T>::iterator find_if(typename vector<T>::iterator first, typename vector<T>::iterator last,  Pred pred) {
+    friend typename vector<T>::iterator find_if(typename vector<T>::iterator first, typename vector<T>::iterator last,  Pred pred) {
         while (first != last) {
             if (pred(*first)) {
                 return first;
@@ -338,7 +340,7 @@ template <typename Pred>
         return last;
     }
     template <typename Pred>
-typename vector<T>::iterator find_if(typename vector<T>::iterator first, typename vector<T>::iterator last, Pred pred, std::input_iterator_tag) {
+friend typename vector<T>::iterator find_if(typename vector<T>::iterator first, typename vector<T>::iterator last, Pred pred, std::input_iterator_tag) {
     while (first != last) {
         if (pred(*first)) {
             return first;
@@ -595,6 +597,26 @@ template<class T> void vector<T>::resize(int &i){
         std::fill(elem+sz,elem+i,T{});
     }
     sz=i;
+}
+template<class T>void vector<T>::resize(T count,T init){
+    if(count<=sz){
+        sz=count;
+        return;
+    }
+    if(count>cap){
+        cap=count;
+        T* temp=new T[count];
+        for (int j=0;j<sz;j++){
+            temp[j]=elem[j];
+        }
+        std::fill(temp+sz,temp+cap,T{init});
+        delete[] elem;
+        elem=temp;
+    }
+    else{
+        std::fill(elem+sz,elem+count,T{init});
+    }
+    sz=count;
 }
 
 template<class T> void vector<T>::swap(vector<T> &b){

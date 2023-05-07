@@ -22,3 +22,11 @@ non-member:
 	g++ -std=c++20 -O3 vector.h ./Tests/non-member.cpp -o ./Tests/bin/non-member.exe
 run_non-member:
 	./Tests/bin/non-member.exe
+push_back:
+	g++ -std=c++20 -O3 vector.h ./Tests/push_back.cpp -o ./Tests/bin/push_back.exe
+run_push_back:
+	./Tests/bin/push_back.exe
+modifiers:
+	g++ -std=c++20 -O3 vector.h ./Tests/modifiers.cpp -o ./Tests/bin/modifiers.exe
+run_modifiers:
+	./Tests/bin/modifiers.exe
