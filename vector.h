@@ -19,6 +19,7 @@ class vector{
     int sz;//size
     int cap;//capacity
     T *elem;
+    using value_type=T;
     public:
     //member functions-----------------------------------------------------------
     //constructors
@@ -152,7 +153,10 @@ public:
         private:
         T* m_ptr;
         public:
-        // T* m_ptr;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+        using iterator_category = std::input_iterator_tag;
         iterator(T* ptr) : m_ptr(ptr) {}
         iterator() :m_ptr(nullptr){}
         iterator(std::__cxx11::basic_string<T>::iterator it):m_ptr(&(*it)){}
@@ -160,6 +164,7 @@ public:
         operator T*() const{
             return m_ptr;
         }
+        
         iterator& operator++(){
         ++m_ptr;
         return *this;
@@ -179,6 +184,16 @@ public:
         --m_ptr;
         return *this;
     }
+    iterator operator-(int n) const {
+        iterator result(*this);
+        result.m_ptr -= n;
+        return result;
+    }
+    iterator operator+(int n) const {
+        iterator result(*this);
+        result.m_ptr += n;
+        return result;
+    }
     void operator=(T* other){
         m_ptr=other;
     }
@@ -195,7 +210,7 @@ public:
     }
     
     bool operator<(const iterator& other){
-        return *this.m_ptr<other.m_ptr;
+        return m_ptr<other.m_ptr;
     }
     bool operator<(T* other){
         return m_ptr<other;
@@ -312,10 +327,30 @@ vector<T>::iterator erase(T* element);
 vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(last-first),elem(new T[cap]){for(int i=0;i<sz;i++,first++){elem[i]=*first;}}
 void assign(vector<T>::iterator first,vector<T>::iterator last);
 template<class U> friend void swap(vector<U>&a,vector<U>&b);
-    // std::swap(a.elem,b.elem);
-    // std::swap(a.sz,b.sz);
-    // std::swap(a.cap,b.cap);
-// }
+template <typename Pred>
+    typename vector<T>::iterator find_if(typename vector<T>::iterator first, 
+                                          typename vector<T>::iterator last, 
+                                          Pred pred) {
+        while (first != last) {
+            if (pred(*first)) {
+                return first;
+            }
+            ++first;
+        }
+        return last;
+    }
+    template <typename Pred>
+typename vector<T>::iterator find_if(typename vector<T>::iterator first, 
+                                      typename vector<T>::iterator last, 
+                                      Pred pred, std::input_iterator_tag) {
+    while (first != last) {
+        if (pred(*first)) {
+            return first;
+        }
+        ++first;
+    }
+    return last;
+}
 //---------------------------------------------------------------------------- 
 };
 //member functions-----------------------------------------------------------
@@ -723,5 +758,6 @@ template<class U>void swap(vector<U>&a,vector<U>&b){
     std::swap(a.sz,b.sz);
     std::swap(a.cap,b.cap);
 }
+    
 //---------------------------------------------------------------------
 #endif
