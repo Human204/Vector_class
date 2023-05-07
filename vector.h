@@ -328,9 +328,7 @@ vector(vector<T>::iterator first,vector<T>::iterator last):sz(last-first),cap(la
 void assign(vector<T>::iterator first,vector<T>::iterator last);
 template<class U> friend void swap(vector<U>&a,vector<U>&b);
 template <typename Pred>
-    typename vector<T>::iterator find_if(typename vector<T>::iterator first, 
-                                          typename vector<T>::iterator last, 
-                                          Pred pred) {
+    typename vector<T>::iterator find_if(typename vector<T>::iterator first, typename vector<T>::iterator last,  Pred pred) {
         while (first != last) {
             if (pred(*first)) {
                 return first;
@@ -340,9 +338,7 @@ template <typename Pred>
         return last;
     }
     template <typename Pred>
-typename vector<T>::iterator find_if(typename vector<T>::iterator first, 
-                                      typename vector<T>::iterator last, 
-                                      Pred pred, std::input_iterator_tag) {
+typename vector<T>::iterator find_if(typename vector<T>::iterator first, typename vector<T>::iterator last, Pred pred, std::input_iterator_tag) {
     while (first != last) {
         if (pred(*first)) {
             return first;
