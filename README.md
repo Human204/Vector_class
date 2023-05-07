@@ -63,3 +63,4 @@ Non-member functions:
 * std::swap()
 * erase()
 * erase_if()
+* find_if()
