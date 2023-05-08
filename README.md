@@ -2,6 +2,10 @@
 # Usage
 In order for this header file to work, you must compile it with C++20, because of <=> operator
 
+# example
+
+![modifiers_test](https://github.com/Human204/Vector_class/blob/test/Tests/examples/modifiers_test.png?raw=true)
+
 # Working functions
 (-) = not implemented
 
